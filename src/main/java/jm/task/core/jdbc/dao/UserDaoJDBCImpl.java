@@ -37,7 +37,7 @@ public class UserDaoJDBCImpl implements UserDao {
         return INSTANCE;
     }
 
-    public void executeQuery(String sql) {
+    private void executeQuery(String sql) {
         try (Connection conn = Util.getConnection();
         Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(sql);
