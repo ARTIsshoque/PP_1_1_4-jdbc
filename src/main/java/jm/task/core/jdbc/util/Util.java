@@ -14,7 +14,7 @@ import java.util.concurrent.BlockingQueue;
 
 public final class Util {
     private static final Properties PROPERTIES = new Properties();
-    private static final String file = "application.properties";
+    private static final String PROPERTIES_FILE = "application.properties";
     private static final String URL_KEY = "db.url";
     private static final String USERNAME_KEY = "db.username";
     private static final String PASSWORD_KEY = "db.password";
@@ -36,7 +36,7 @@ public final class Util {
     }
 
     private static void loadProperties() {
-        try (InputStream inputStream = Util.class.getClassLoader().getResourceAsStream(file)) {
+        try (InputStream inputStream = Util.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
             PROPERTIES.load(inputStream);
         } catch (IOException e) {
             throw new MySQLException(e);

@@ -4,11 +4,14 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.MySQLException;
 import jm.task.core.jdbc.util.Util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
+    public static final Logger LOGGER = LoggerFactory.getLogger(UserDaoJDBCImpl.class);
     private static final UserDaoJDBCImpl INSTANCE = new UserDaoJDBCImpl();
     private static final String CREATE_TBL_SQL = """
             CREATE TABLE IF NOT EXISTS `users` (
@@ -34,22 +37,26 @@ public class UserDaoJDBCImpl implements UserDao {
         return INSTANCE;
     }
 
-    public void createUsersTable() {
+    public void executeQuery(String sql) {
         try (Connection conn = Util.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(CREATE_TBL_SQL);
+        Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
         } catch (SQLException | MySQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
+    public void createUsersTable() {
+        executeQuery(CREATE_TBL_SQL);
+    }
+
+
     public void dropUsersTable() {
-        try (Connection conn = Util.getConnection();
-        Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(DROP_TBL_SQL);
-        } catch (SQLException | MySQLException e) {
-            e.printStackTrace();
-        }
+        executeQuery(DROP_TBL_SQL);
+    }
+
+    public void cleanUsersTable() {
+        executeQuery(CLEAR_TBL_SQL);
     }
 
     public void saveUser(String name, String lastName, byte age) {
@@ -60,7 +67,7 @@ public class UserDaoJDBCImpl implements UserDao {
             prepStmt.setByte(3, age);
             prepStmt.executeUpdate();
         } catch (SQLException | MySQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -70,7 +77,7 @@ public class UserDaoJDBCImpl implements UserDao {
             prepStmt.setLong(1, id);
             prepStmt.executeUpdate();
         } catch (SQLException | MySQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -88,19 +95,9 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setId(resultSet.getLong("id"));
                 users.add(user);
             }
-            return users;
         } catch (SQLException | MySQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
-        return null;
-    }
-
-    public void cleanUsersTable() {
-        try (Connection conn = Util.getConnection();
-        Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(CLEAR_TBL_SQL);
-        } catch (SQLException | MySQLException e) {
-            e.printStackTrace();
-        }
+        return users;
     }
 }
